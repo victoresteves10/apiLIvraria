@@ -54,27 +54,27 @@ class LivroController {
         })
     }
 
-    static listarLivroPorTitulo = (req, res) => {
-        const titulo = req.query.titulo
-        livros.find({ 'titulo': titulo }, {}, (err, livros) => {
-            if (err) {
-                res.status(400).send({ message: `${err.message} LIVRO NÃO ENCONTRADO` })
-            } else {
+    static listaLivroPorParametro = (req, res) => {
+        const { titulo, autor } = req.query;
+
+        if (!titulo && !autor) {
+            res.status(400).send({ message: 'Por favor forneça um título ou autor válido' });
+        }
+        if (titulo) {
+            livros.find({ 'titulo': titulo }, {}, (err, livros) => {
+                console.log(titulo);
                 res.status(200).send(livros);
-            }
-        })
+            })
+        }
+        if (autor) {
+            livros.find({ 'autor': autor }, {}, (err, livros) => {
+                console.log(autor);
+                res.status(200).send(livros);
+            })
+        }
+
     }
 
-    static listaLivroPorAutor = (req, res) => {
-        const autor = req.query.autor
-        livros.find({ 'autor': autor }, {}, (err, livros) => {
-            if (err) {
-                res.status(400).send({ message: `${err.message} LIVRO NÃO ENCONTRADO` })
-            } else {
-                res.status(200).send(livros);
-            }
-        })
-    }
 }
 
 export default LivroController
