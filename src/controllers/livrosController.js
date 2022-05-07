@@ -61,10 +61,11 @@ class LivroController {
             res.status(400).send({ message: 'Por favor forneça um título ou autor válido' });
         }
         if (titulo) {
-            livros.find({ 'titulo': titulo }, {}, (err, livros) => {
+            let regex = new RegExp(titulo, 'i');
+            livros.find({ 'titulo': { $regex: regex } }, {}, (err, livros) => {
                 console.log(titulo);
                 res.status(200).send(livros);
-            })
+            }).collation({ locale: 'en_US', strength: 1 })
         }
         if (autor) {
             livros.find({ 'autor': autor }, {}, (err, livros) => {
