@@ -2,14 +2,20 @@
 import autores from "../models/Autor.js";
 import { parse } from 'fast-csv';
 import fs from 'fs';
-import uploadFile from "../middleware/upload.js";
+
 
 class UploadController {
 
 
     static upload = (req, res) => {
 
-        let stream = fs.createReadStream(uploadFile);
+        if (file.mimeType.includes("csv")) {
+            cb(null, true);
+        } else {
+            cb("Arquivo precisa ser .csv", false);
+        }
+
+        let stream = fs.createReadStream(req.file);
 
         stream.pipe(parse({ headers: true }))
             .on("error", (error) => {
@@ -22,6 +28,13 @@ class UploadController {
                     })
             })
         let autor = new autores(stream);
+        autor.save((err) => {
+            if (err) {
+                res.status(500).send({ message: `${err.message} - Falha ao cadastrar autor` })
+            } else {
+                res.status(201).send({ message: 'Terminamos' })
+            }
+        })
 
     }
 
