@@ -68,7 +68,8 @@ class LivroController {
             }).collation({ locale: 'en_US', strength: 1 })
         }
         if (autor) {
-            livros.find({ 'autor': autor }, {}, (err, livros) => {
+            let regex = new RegExp(autor, 'i');
+            livros.find({ 'autor': { $regex: regex } }, {}, (err, livros) => {
                 console.log(autor);
                 res.status(200).send(livros);
             })

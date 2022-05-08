@@ -1,5 +1,6 @@
 import autores from "../models/Autor.js";
 
+
 class AutoresController {
 
     static listarAutores = (req, res) => {
@@ -52,6 +53,8 @@ class AutoresController {
             }
         })
     }
+
+
 }
 
 export default AutoresController
