@@ -8,7 +8,7 @@ router
     .get("/autores", AutoresController.listarAutores)
     .get("/autores/:id", AutoresController.listarPorId)
     .post("/autores", AutoresController.cadastrarAutores)
-    .post("/autores/upload", upload.single(UploadController.upload))
+    .post("/autores/upload", upload.single('file'), UploadController.upload)
     .put("/autores/:id", AutoresController.atualizarAutores)
     .delete("/autores/:id", AutoresController.excluirAutores)
 

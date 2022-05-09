@@ -1,7 +1,6 @@
-
+import csv from 'csvtojson';
 import autores from "../models/Autor.js";
-import { parse } from 'fast-csv';
-import fs from 'fs';
+
 
 
 class UploadController {
@@ -9,32 +8,47 @@ class UploadController {
 
     static upload = (req, res) => {
 
-        if (file.mimeType.includes("csv")) {
-            cb(null, true);
-        } else {
-            cb("Arquivo precisa ser .csv", false);
+        /*  if (file.mimeType.includes("csv")) {
+             cb(null, true);
+         } else {
+             cb("Arquivo precisa ser .csv", false);
+         } */
+        let chegada = req.file.buffer
+        //console.log(chegada);
+        let stream = chegada.toString('utf-8');
+        console.log(stream);
+
+        const csvToObject = (stream) => {
+            const normalizedFile = stream.replace(/"/g, '').replace(/\t/g, '').replace(/\r/g, '');
+            const fileLines = normalizedFile.split('\n');
+            const headers = fileLines[0].split(';');
+            const normalizedHeaders = headers.map(header => header.toLowerCase());
+
+            const processedItems = [];
+
+            for (let i = 1; i < fileLines.length; i += 1) {
+                if (fileLines[i]) {
+                    const messageData = {};
+                    const currentLine = fileLines[i].split(';');
+                    for (let j = 0; j < normalizedHeaders.length; j += 1) {
+                        messageData[normalizedHeaders[j]] = currentLine[j];
+                    }
+                    processedItems.push(messageData);
+                }
+            }
+            return processedItems
         }
 
-        let stream = fs.createReadStream(req.file);
+        const transforma = csvToObject(stream);
+        const parse = JSON.parse(JSON.stringify(transforma));
+        console.log(transforma);
 
-        stream.pipe(parse({ headers: true }))
-            .on("error", (error) => {
-                throw error.message;
-            })
-            .on("end", () => {
-                novo.bulkCreate(conteudo)
-                    .then(() => {
-                        res.status(200).send({ message: "Upload feito com sucesso" })
-                    })
-            })
-        let autor = new autores(stream);
-        autor.save((err) => {
-            if (err) {
-                res.status(500).send({ message: `${err.message} - Falha ao cadastrar autor` })
-            } else {
-                res.status(201).send({ message: 'Terminamos' })
-            }
+        parse.forEach(autor => {
+            let novoAutor = new autores(autor);
+            novoAutor.save()
         })
+
+        res.status(200).send({ message: 'Cadastro feito com sucesso' });
 
     }
 
