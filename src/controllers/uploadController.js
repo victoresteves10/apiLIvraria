@@ -1,6 +1,6 @@
-import csv from 'csvtojson';
-import autores from "../models/Autor.js";
 
+import autores from "../models/Autor.js";
+import livros from "../models/Livro.js";
 
 
 class UploadController {
@@ -8,15 +8,11 @@ class UploadController {
 
     static upload = (req, res) => {
 
-        /*  if (file.mimeType.includes("csv")) {
-             cb(null, true);
-         } else {
-             cb("Arquivo precisa ser .csv", false);
-         } */
+
         let chegada = req.file.buffer
-        //console.log(chegada);
+        const { type = '' } = req.body;
         let stream = chegada.toString('utf-8');
-        console.log(stream);
+
 
         const csvToObject = (stream) => {
             const normalizedFile = stream.replace(/"/g, '').replace(/\t/g, '').replace(/\r/g, '');
@@ -41,14 +37,23 @@ class UploadController {
 
         const transforma = csvToObject(stream);
         const parse = JSON.parse(JSON.stringify(transforma));
-        console.log(transforma);
 
-        parse.forEach(autor => {
-            let novoAutor = new autores(autor);
-            novoAutor.save()
-        })
+        if (type == 'book') {
+            parse.forEach(arquivo => {
+                let novoLivro = new livros(arquivo);
+                novoLivro.save()
+            })
+            res.status(200).send({ message: 'Cadastro feito com sucesso' });
+        } if (type == 'autor') {
+            parse.forEach(arquivo => {
+                let novoAutor = new autores(arquivo);
+                novoAutor.save()
+            })
+            res.status(200).send({ message: 'Cadastro feito com sucesso' });
+        } else {
+            res.status(500).send({ message: 'O arquivo deve ser tipo book ou autor' });
+        }
 
-        res.status(200).send({ message: 'Cadastro feito com sucesso' });
 
     }
 
